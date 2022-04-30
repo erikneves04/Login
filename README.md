@@ -1,9 +1,9 @@
 # Authorization & Authentication
 
 <div align="justify"> 
-Olá, pessoas!
+  Olá, pessoas!
 
-Esse reporitório foi criado com o objetivo de eu ter contato com diferentes formas de realizar o controle de acesso aos endpoints de uma API ASP.NET. 
+  Esse reporitório foi criado com o objetivo de eu ter contato com diferentes formas de realizar o controle de acesso aos endpoints de uma API ASP.NET. 
 </div> 
 
 ## Metas:
@@ -17,7 +17,10 @@ Esse reporitório foi criado com o objetivo de eu ter contato com diferentes for
 - <a hrf="https://en.wikipedia.org/wiki/Service_layer_pattern">Service layer pattern;</a>
 - <a hrf="https://deviq.com/design-patterns/repository-pattern">Repository pattern;</a>
 
-Obs. 1: Não apliquei o <a hrf="https://www.macoratti.net/16/01/net_uow1.htm"> Unity of Work </a> porque não gostei desse modelo de implementação, sendo que, do meu ponto de vista, injetar uma(ou algumas) instância de IRepository é mais simples do que injetar somente IUnityOfWork para acessar todos os repositórios poteriormente...
+<div align="justify"> 
+  Obs. 1: Esses patterns vão ser alterados nas próximas versões, pois quero ter contato com outros modelos de projeto... Caso tudo ocorra bem, na versão 2.0(que usa a autenticação via JWT) já usará outros.</br></br>
+  Obs. 2: Não apliquei o <a hrf="https://www.macoratti.net/16/01/net_uow1.htm"> Unity of Work </a> porque não gostei desse modelo de implementação, sendo que, do meu ponto  de vista, injetar uma(ou algumas) instância de IRepository é mais simples do que injetar somente IUnityOfWork para acessar todos os repositórios poteriormente...
+</div> 
 
 ## Aprimoramento:
 <div align="justify"> 
