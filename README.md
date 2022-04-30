@@ -27,3 +27,6 @@
 A branch 'Master' desse projeto referência a versão mais desenvolvida desse sistema. </br>
 As demais versões podem ser acessadas em suas respectivas branch's.
 </div> 
+
+## Datas/Branchs:
+- dd/mm/aaaa -> Versão x.0: description;
