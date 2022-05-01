@@ -2,6 +2,8 @@
 using Access.Interfaces.Services;
 using Access.Models.Base;
 using Access.Models.View;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace Access.Services;
 
@@ -91,11 +93,10 @@ public class UserServices : IUserServices
         if (!IsValidEmail(user.Email))
             throw new Exception("Invalid email.");
 
-        if (!IsValidPassword(user.Password))
-            throw new Exception("Invalid password.");
-
         if (GetByEmail(user.Email) != null && !user.Email.Equals(oldEmail))
             throw new Exception("This email is already linked to a user.");
+
+        ValidatePassword(user.Password);
     }
 
     public static bool IsValidEmail(string email)
@@ -103,14 +104,34 @@ public class UserServices : IUserServices
         if (string.IsNullOrEmpty(email))
             return false;
 
-        return true;
+        return new EmailAddressAttribute().IsValid(email);
     }
 
-    public static bool IsValidPassword(string password)
+    public static void ValidatePassword(string password)
     {
         if (string.IsNullOrEmpty(password))
-            return false;
+            throw new Exception("Password should not be empty");
 
-        return true;
+        var hasNumber = new Regex(@"[0-9]+");
+        var hasUpperChar = new Regex(@"[A-Z]+");
+        var hasMiniMaxChars = new Regex(@".{8,15}");
+        var hasLowerChar = new Regex(@"[a-z]+");
+        var hasSymbols = new Regex(@"[!@#$%^&*()_+=\[{\]};:<>|./?,-]");
+
+
+        if (!hasLowerChar.IsMatch(password))
+            throw new Exception("Password should contain at least one lower case letter.");
+
+        if (!hasUpperChar.IsMatch(password))
+            throw new Exception("Password should contain at least one upper case letter.");
+
+        if (!hasMiniMaxChars.IsMatch(password))
+            throw new Exception("Password should not be lesser than 8 or greater than 15 characters.");
+
+        if (!hasNumber.IsMatch(password))
+            throw new Exception("Password should contain at least one numeric value.");
+
+        if (!hasSymbols.IsMatch(password))
+            throw new Exception("Password should contain at least one special case character.");
     }
 }
