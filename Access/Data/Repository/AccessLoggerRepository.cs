@@ -1,4 +1,4 @@
-﻿using Access.Interfaces;
+﻿using Access.Interfaces.Repository;
 using Access.Models.Base;
 
 namespace Access.Data.Repository;
