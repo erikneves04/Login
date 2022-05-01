@@ -20,6 +20,7 @@ public class Repository<EntityType> : IRepository<EntityType>
     public void Add(EntityType entity)
     {
         _table.Add(entity);
+        _context.SaveChanges();
     }
 
     public void Update(EntityType entity)
@@ -27,11 +28,14 @@ public class Repository<EntityType> : IRepository<EntityType>
         entity.LastUpdate = DateTime.Now;
         _context.Entry(entity).State = EntityState.Modified;
         _table.Update(entity);
+
+        _context.SaveChanges();
     }
 
     public void Delete(EntityType entity)
     {
         _table.Remove(entity);
+        _context.SaveChanges();
     }
 
     public IQueryable<EntityType> Get()
