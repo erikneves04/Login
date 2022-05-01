@@ -1,10 +1,11 @@
 ﻿using Access.Interfaces.Repository;
+using Access.Interfaces.Services;
 using Access.Models.Base;
 using Access.Models.View;
 
 namespace Access.Services;
 
-public class UserServices
+public class UserServices : IUserServices
 {
     private readonly IUserRepository _reporitory;
 

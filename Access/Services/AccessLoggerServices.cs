@@ -1,11 +1,12 @@
 ﻿using Access.Interfaces;
+using Access.Interfaces.Services;
 using Access.Models.Base;
 using Access.Models.View;
 using Microsoft.EntityFrameworkCore;
 
 namespace Access.Services;
 
-public class AccessLoggerServices
+public class AccessLoggerServices : IAccessLoggerServices
 {
     public IAccessLoggerRepository _repository;
 
