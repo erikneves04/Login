@@ -1,15 +1,33 @@
+using Access.Data;
+using Access.Data.Repository;
+using Access.Interfaces.Repository;
+using Access.Interfaces.Services;
+using Access.Services;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+IServiceCollection services = builder.Services;
+IConfiguration configuration = builder.Configuration;
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+services.AddControllers();
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
+
+var ConnectionString = configuration.GetConnectionString("DefaultConnection");
+services.AddDbContext<Context>(options =>
+                options.UseSqlServer(ConnectionString));
+
+// Services
+services.AddScoped<IUserServices, UserServices>();
+services.AddScoped<IAccessLoggerServices, AccessLoggerServices>();
+
+// Repositories
+services.AddScoped<IUserRepository, UserRepository>();
+services.AddScoped<IAccessLoggerRepository, AccessLoggerRepository>();
+
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
