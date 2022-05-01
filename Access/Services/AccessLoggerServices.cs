@@ -47,7 +47,7 @@ public class AccessLoggerServices : IAccessLoggerServices
         var logger = new AccessLogger(data);
         _repository.Add(logger);
 
-        return new AccessLoggerView(logger);
+        return new AccessLoggerView(Get(logger.Id));
     }
 
     public AccessLoggerView Update(AccessLoggerInsertView data, Guid id)
@@ -63,7 +63,7 @@ public class AccessLoggerServices : IAccessLoggerServices
 
         _repository.Update(logger);
 
-        return new AccessLoggerView(logger);
+        return new AccessLoggerView(Get(logger.Id));
     }
 
     public void Delete(Guid id)
