@@ -91,10 +91,10 @@ public class UserServices : IUserServices
     private void ValidateUser(UserInsertView user, string oldEmail = null)
     {
         if (!IsValidEmail(user.Email))
-            throw new Exception("Invalid email.");
+            throw new InvalidDataException("Invalid email.");
 
         if (GetByEmail(user.Email) != null && !user.Email.Equals(oldEmail))
-            throw new Exception("This email is already linked to a user.");
+            throw new InvalidDataException("This email is already linked to a user.");
 
         ValidatePassword(user.Password);
     }
@@ -120,18 +120,18 @@ public class UserServices : IUserServices
 
 
         if (!hasLowerChar.IsMatch(password))
-            throw new Exception("Password should contain at least one lower case letter.");
+            throw new InvalidDataException("Password should contain at least one lower case letter.");
 
         if (!hasUpperChar.IsMatch(password))
-            throw new Exception("Password should contain at least one upper case letter.");
+            throw new InvalidDataException("Password should contain at least one upper case letter.");
 
         if (!hasMiniMaxChars.IsMatch(password))
-            throw new Exception("Password should not be lesser than 8 or greater than 15 characters.");
+            throw new InvalidDataException("Password should not be lesser than 8 or greater than 15 characters.");
 
         if (!hasNumber.IsMatch(password))
-            throw new Exception("Password should contain at least one numeric value.");
+            throw new InvalidDataException("Password should contain at least one numeric value.");
 
         if (!hasSymbols.IsMatch(password))
-            throw new Exception("Password should contain at least one special case character.");
+            throw new InvalidDataException("Password should contain at least one special case character.");
     }
 }

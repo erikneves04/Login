@@ -51,6 +51,10 @@ public class UserController : ControllerBase
             var content = _services.Insert(user);
             return Created(this.Url.Action("POST"), content);
         }
+        catch(InvalidDataException ex)
+        {
+            return BadRequest(ex.Message);
+        }
         catch (Exception ex)
         {
             return NotFound(ex.Message);
@@ -64,6 +68,10 @@ public class UserController : ControllerBase
         {
             var content = _services.Update(user, id);
             return Ok(content);
+        }
+        catch (InvalidDataException ex)
+        {
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
