@@ -9,11 +9,42 @@ namespace Access.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserServices _services;
+    private readonly IAccessServices _accessServices;
 
-    public UserController(IUserServices services)
+    public UserController(IUserServices services, IAccessServices accessServices)
     {
         _services = services;
+        _accessServices = accessServices;
     }
+
+    [HttpPost("login")]
+    public ActionResult<TokenView> Login([FromBody] LoginView data)
+    {
+        try
+        {
+            var content = _accessServices.Login(data);
+            return Ok(content);
+        }
+        catch (Exception ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
+    [HttpPost("logout")]
+    public ActionResult<TokenView> Logout()
+    {
+        try
+        {
+            _accessServices.Logout();
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return NotFound(ex.Message);
+        }
+    }
+
 
     [HttpGet]
     public ActionResult<IEnumerable<UserView>> Get()
