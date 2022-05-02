@@ -21,8 +21,10 @@ services.AddDbContext<Context>(options =>
 // Services
 services.AddScoped<IUserServices, UserServices>();
 services.AddScoped<IAccessLoggerServices, AccessLoggerServices>();
+services.AddScoped<IAccessServices, AccessServices>();
 
 // Repositories
+services.AddHttpContextAccessor();
 services.AddScoped<IUserRepository, UserRepository>();
 services.AddScoped<IAccessLoggerRepository, AccessLoggerRepository>();
 
