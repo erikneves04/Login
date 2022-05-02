@@ -50,6 +50,9 @@ public class User : Base
     }
     public bool AccessBlockUpdate()
     {
+        if (BlockExpiresAt == DateTime.MinValue)
+            return false;
+
         if (BlockExpiresAt >= DateTime.Now)
             return false;
 
