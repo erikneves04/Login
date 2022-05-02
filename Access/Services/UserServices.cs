@@ -20,7 +20,7 @@ public class UserServices : IUserServices
     {
         var users = GetAll().ToList();
         if (!users.Any())
-            throw new Exception("Users not found.");
+            throw new Exception("Users not found");
 
         return users.Select(e => new UserView(e));
     }
@@ -69,6 +69,21 @@ public class UserServices : IUserServices
 
         user.IsActive = false;
         _reporitory.Update(user);
+    }
+
+    public User Access(string email, string password)
+    {
+        var user = GetByEmail(email);
+        if (user == null)
+            throw new InvalidDataException("Email or password is incorrect!");
+
+        if (user.AccessIsBlocked)
+            throw new InvalidDataException($"Too many attempts, wait until {user.BlockExpiresAt.ToShortDateString()} to try again!");
+
+        if(!user.IsCorrectPassword(password))
+            throw new InvalidDataException("Email or password is incorrect!");
+
+        return user;
     }
 
     private User Get(Guid id)
