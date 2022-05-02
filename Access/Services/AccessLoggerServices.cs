@@ -75,6 +75,37 @@ public class AccessLoggerServices : IAccessLoggerServices
         _repository.Delete(logger);
     }
 
+    public void SwitchValidStateByToken(string token)
+    {
+        var logger = GetAll()
+            .FirstOrDefault(e => e.Token == token);
+        if (logger == null)
+            throw new Exception("Acess logger not found.");
+
+        SwitchValidState(logger);
+    }
+
+    public void SwitchValidStateByUserId(Guid userId)
+    {
+        var logger = GetAll()
+            .FirstOrDefault(e => e.UserId == userId && !e.IsExpired);
+        if (logger == null)
+            throw new Exception("Acess logger not found.");
+
+        SwitchValidState(logger);
+    }
+
+    private void SwitchValidState(AccessLogger entity)
+    {
+        if (entity == null)
+            throw new Exception("Acess logger not found.");
+
+        entity.ExpiresAt = DateTime.Now;
+        entity.IsExpired = true;
+
+        _repository.Update(entity);
+    }
+
     private IEnumerable<AccessLogger> GetByUserId(Guid id)
     {
         return GetAll()
