@@ -43,6 +43,11 @@ public class AccessServices : IAccessServices
         return new TokenView("authorized access", token, expiresAt);
     }
 
+    public void Logout()
+    {
+        var token = _contextAccessor.HttpContext.Request.Headers["token"];
+        _loggerServices.SwitchValidStateByToken(token);
+    }
 
     public static string GetToken(string privateKey, string publicKey, Guid  userId,string userName, DateTime expiresAt)
     {
@@ -77,7 +82,6 @@ public class AccessServices : IAccessServices
             throw new Exception(ex.Message, ex.InnerException);
         }
     }
-
     public static TokenDecryptedData GetTokenData(string privateKey, string publicKey, string token)
     {
         string decrypted;
