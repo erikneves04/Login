@@ -30,7 +30,7 @@ public class User : Base
     public bool IsActive { get; set; }
     public string Name { get; set; }
     public string Email { get; set; }
-    private string Password;
+    public string Password { get; set; }
 
     public static readonly int MaxAccessAttempts = 4;
     private int AccessAttemptsCount { get; set; } = 0;
