@@ -78,7 +78,7 @@ public class AccessLoggerServices : IAccessLoggerServices
     public void SwitchValidStateByToken(string token)
     {
         var logger = GetAll()
-            .FirstOrDefault(e => e.Token == token);
+            .FirstOrDefault(e => e.Token == token && !e.IsExpired);
         if (logger == null)
             throw new Exception("Acess logger not found.");
 

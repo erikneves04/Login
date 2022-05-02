@@ -2,6 +2,7 @@
 using Access.Models.View;
 using System.Security.Cryptography;
 using System.Text;
+using System;
 
 namespace Access.Services;
 
@@ -45,8 +46,13 @@ public class AccessServices : IAccessServices
 
     public void Logout()
     {
-        var token = _contextAccessor.HttpContext.Request.Headers["token"];
-        _loggerServices.SwitchValidStateByToken(token);
+        _loggerServices.SwitchValidStateByToken(GetRequestToken());
+    }
+
+    private string GetRequestToken()
+    {
+        string token = _contextAccessor.HttpContext.Request.Headers["Authorization"];
+        return token?.Substring(7);
     }
 
     public static string GetToken(string privateKey, string publicKey, Guid  userId,string userName, DateTime expiresAt)
