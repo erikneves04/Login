@@ -71,19 +71,26 @@ public class UserServices : IUserServices
         _reporitory.Update(user);
     }
 
-    public User Access(string email, string password)
+    public UserView Access(string email, string password)
     {
         var user = GetByEmail(email);
         if (user == null)
             throw new InvalidDataException("Email or password is incorrect!");
 
+        if (user.AccessBlockUpdate())
+            _reporitory.Update(user);
+        
         if (user.AccessIsBlocked)
-            throw new InvalidDataException($"Too many attempts, wait until {user.BlockExpiresAt.ToShortDateString()} to try again!");
+            throw new InvalidDataException($"Too many attempts, wait until {user.BlockExpiresAt} to try again!");
 
-        if(!user.IsCorrectPassword(password))
+        if (!user.IsCorrectPassword(password))
+        {
+            _reporitory.Update(user);
             throw new InvalidDataException("Email or password is incorrect!");
+        }
+            
 
-        return user;
+        return new UserView(user);
     }
 
     private User Get(Guid id)

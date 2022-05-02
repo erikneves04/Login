@@ -27,16 +27,11 @@ public class AccessServices : IAccessServices
 
     public TokenView Login(LoginView login)
     {
-        if (string.IsNullOrEmpty(login.Email))
-            throw new InvalidDataException("Email is required");
+        ValidateLoginParams(login);
 
-        if (string.IsNullOrEmpty(login.Password))
-            throw new InvalidDataException("Password is required");
-    
         var user = _userServices.Access(login.Email, login.Password);
 
-
-        var expiresAt = DateTime.UtcNow.AddMinutes(60);
+        var expiresAt = DateTime.Now.AddMinutes(2);
         var ipAddress = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
         var token = GetToken(PrivateEncryptKey, PublicEncryptKey, user.Id, user.Name, expiresAt);
 
@@ -47,6 +42,15 @@ public class AccessServices : IAccessServices
     public void Logout()
     {
         _loggerServices.SwitchValidStateByToken(GetRequestToken());
+    }
+
+    private static void ValidateLoginParams(LoginView login)
+    {
+        if (string.IsNullOrEmpty(login.Email))
+            throw new InvalidDataException("Email is required");
+
+        if (string.IsNullOrEmpty(login.Password))
+            throw new InvalidDataException("Password is required");
     }
 
     private string GetRequestToken()

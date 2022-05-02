@@ -5,9 +5,7 @@ namespace Access.Models.Base;
 public class AccessLogger : Base
 {
     public AccessLogger() 
-    {
-        UpdateExpireState();
-    }
+    { }
     public AccessLogger(Guid userId, string token, string ipAddress, DateTime expiresAt, bool isExpired) 
     { 
         UserId = userId;    
@@ -15,8 +13,6 @@ public class AccessLogger : Base
         IpAddress = ipAddress;
         ExpiresAt = expiresAt;
         IsExpired = isExpired;
-
-        UpdateExpireState();
     }
     public AccessLogger(AccessLoggerInsertView data)
     {
@@ -35,7 +31,7 @@ public class AccessLogger : Base
     public DateTime ExpiresAt { get; set; }
     public bool IsExpired { get; set; }
 
-    private void UpdateExpireState()
+    public void UpdateExpireState()
     {
         if (IsExpired)
             return;

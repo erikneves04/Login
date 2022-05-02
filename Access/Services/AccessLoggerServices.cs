@@ -113,8 +113,13 @@ public class AccessLoggerServices : IAccessLoggerServices
     }
     private AccessLogger Get(Guid id)
     {
-        return GetAll()
-                .FirstOrDefault(e => e.Id == id);
+        var logger = GetAll()
+                        .FirstOrDefault(e => e.Id == id);
+
+        if(logger != null)
+            logger.UpdateExpireState();
+
+        return logger;
     }
 
     private IQueryable<AccessLogger> GetAll()

@@ -4,18 +4,13 @@ namespace Access.Models.Base;
 
 public class User : Base
 {
-    public User() 
-    {
-        AccessBlockUpdate();
-    }
+    public User() { }
     public User(string name, string email,string password)
     { 
         Name = name;
         Email = email;
         Password = password;
         IsActive = true;
-
-        AccessBlockUpdate();
     }
     public User(UserInsertView user)
     {
@@ -23,8 +18,6 @@ public class User : Base
         Email = user.Email;
         Password = user.Password;
         IsActive = true;
-
-        AccessBlockUpdate();
     }
 
     public bool IsActive { get; set; }
@@ -33,7 +26,7 @@ public class User : Base
     public string Password { get; set; }
 
     public static readonly int MaxAccessAttempts = 4;
-    private int AccessAttemptsCount { get; set; } = 0;
+    public int AccessAttemptsCount { get; set; } = 0;
     public bool AccessIsBlocked { get; private set; } = false;
     public DateTime BlockExpiresAt { get; private set; } = DateTime.MinValue;
 
@@ -44,27 +37,26 @@ public class User : Base
             return false;
 
         var isCorrect = (Password == password);
-        if (isCorrect == false)
+        if (!isCorrect)
             AccessAttemptsCount++;
         
-        if (AccessAttemptsCount == MaxAccessAttempts)
+        if (AccessAttemptsCount >= MaxAccessAttempts)
         {
             AccessIsBlocked = true;
-            BlockExpiresAt = DateTime.Now.AddMinutes(30);
+            BlockExpiresAt = DateTime.Now.AddMinutes(15);
         }
 
         return isCorrect;
     }
-    private void AccessBlockUpdate()
+    public bool AccessBlockUpdate()
     {
-        if (BlockExpiresAt == DateTime.MinValue)
-            return;
-
-        if (BlockExpiresAt >= DateTime.UtcNow)
-            return;
+        if (BlockExpiresAt >= DateTime.Now)
+            return false;
 
         BlockExpiresAt = DateTime.MinValue;
         AccessAttemptsCount = 0;
         AccessIsBlocked = false;
+
+        return true;
     }
 }
