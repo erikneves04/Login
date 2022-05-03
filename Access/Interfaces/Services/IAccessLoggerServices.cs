@@ -6,6 +6,7 @@ public interface IAccessLoggerServices
 {
     void Delete(Guid id);
     AccessLoggerView Insert(AccessLoggerInsertView data);
+    bool IsExpired(string token);
     void SwitchValidStateByToken(string token);
     void SwitchValidStateByUserId(Guid userId);
     AccessLoggerView Update(AccessLoggerInsertView data, Guid id);

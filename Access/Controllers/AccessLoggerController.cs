@@ -1,16 +1,18 @@
 ﻿using Access.Interfaces.Services;
 using Access.Models.View;
+using Access.Services.Base;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Access.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AccessLoggerController : ControllerBase
+public class AccessLoggerController : Authorize
 {
     private readonly IAccessLoggerServices _services;
 
-    public AccessLoggerController(IAccessLoggerServices services)
+    public AccessLoggerController(IAccessLoggerServices services, IHttpContextAccessor httpContextAccessor)
+        : base(httpContextAccessor, services)
     {
         _services = services;
     }
@@ -20,6 +22,8 @@ public class AccessLoggerController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             var content = _services.ViewAll();
             return Ok(content);
         }
@@ -34,6 +38,8 @@ public class AccessLoggerController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             var content = _services.View(id);
             return Ok(content);
         }
@@ -48,6 +54,8 @@ public class AccessLoggerController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             var content = _services.ViewByUserId(id);
             return Ok(content);
         }
@@ -62,6 +70,8 @@ public class AccessLoggerController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             var content = _services.Insert(logger);
             return Created(this.Url.Action("POST"), content);
         }
@@ -80,6 +90,8 @@ public class AccessLoggerController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             var content = _services.Update(logger, id);
             return Ok(content);
         }
@@ -98,6 +110,8 @@ public class AccessLoggerController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             _services.Delete(id);
             return Ok();
         }

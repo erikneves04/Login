@@ -1,17 +1,20 @@
 ﻿using Access.Interfaces.Services;
 using Access.Models.View;
+using Access.Services.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Access.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController : ControllerBase
+public class UserController : Authorize
 {
     private readonly IUserServices _services;
     private readonly IAccessServices _accessServices;
 
-    public UserController(IUserServices services, IAccessServices accessServices)
+    public UserController(IUserServices services, IAccessServices accessServices, IHttpContextAccessor httpContextAccessor, IAccessLoggerServices accessLoggerServices)
+        : base(httpContextAccessor, accessLoggerServices)
     {
         _services = services;
         _accessServices = accessServices;
@@ -36,6 +39,8 @@ public class UserController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             _accessServices.Logout();
             return Ok();
         }
@@ -51,6 +56,8 @@ public class UserController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             var content = _services.ViewAll();
             return Ok(content);
         }
@@ -65,6 +72,8 @@ public class UserController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             var content = _services.View(id);
             return Ok(content);
         }
@@ -97,6 +106,8 @@ public class UserController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             var content = _services.Update(user, id);
             return Ok(content);
         }
@@ -115,6 +126,8 @@ public class UserController : ControllerBase
     {
         try
         {
+            ValidateToken();
+
             _services.Delete(id);
             return Ok();
         }
