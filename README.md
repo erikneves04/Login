@@ -11,7 +11,6 @@
 - Registro de acessos;
 - Limitar tentativas de login;
 - Validação dos dados(Email & Password);
-- Implementação de <a hrf="https://pt.wikipedia.org/wiki/Teste_de_unidade">testes unitários</a>
 
 ## Design patterns usados:
 - <a hrf="https://en.wikipedia.org/wiki/Service_layer_pattern">Service layer pattern;</a>
@@ -29,4 +28,4 @@ As demais versões podem ser acessadas em suas respectivas branch's.
 </div> 
 
 ## Datas/Branchs:
-- dd/mm/aaaa -> Versão x.0: description;
+- 03/05/2022 -> Versão 1.0: Inicial, feita sem o auxílio de serviços prontos;
