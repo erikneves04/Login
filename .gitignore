@@ -1,0 +1,8 @@
+Access/obj/*
+Access/bin/*
+Access/.vs/*
+.vs/*
+
+Tests/obj/*
+Tests/bin/*
+Tests/.vs/*
