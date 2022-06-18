@@ -5,5 +5,4 @@ namespace Access.Interfaces.Services;
 public interface IAccessServices
 {
     TokenView Login(LoginView login);
-    void Logout();
 }
