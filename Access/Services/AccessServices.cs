@@ -2,7 +2,9 @@
 using Access.Models.View;
 using System.Security.Cryptography;
 using System.Text;
-using System;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Access.Services;
 
@@ -10,19 +12,20 @@ public class AccessServices : IAccessServices
 {
     private readonly IAccessLoggerServices _loggerServices;
     private readonly IHttpContextAccessor _contextAccessor;
+    private readonly IConfiguration _config;
     private readonly IUserServices _userServices;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    private readonly string PrivateEncryptKey;
-    private readonly string PublicEncryptKey;
+    // Don't change the keys
+    public static readonly Dictionary<string, string> MainPermissions = new() { { "Admin", "admin" }, { "Common", "common" } };
 
-    public AccessServices(IAccessLoggerServices loggerServices, IHttpContextAccessor contextAccessor, IUserServices userServices, IConfiguration configuration)
+    public AccessServices(IAccessLoggerServices loggerServices, IHttpContextAccessor contextAccessor, IUserServices userServices, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
     {
         _loggerServices = loggerServices;
         _contextAccessor = contextAccessor;
         _userServices = userServices;
-
-        PrivateEncryptKey = configuration["Keys:PrivateTokenEncrypt"];
-        PublicEncryptKey = configuration["Keys:PublicTokenEncrypt"];
+        _config = configuration;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public TokenView Login(LoginView login)
@@ -31,17 +34,11 @@ public class AccessServices : IAccessServices
 
         var user = _userServices.Access(login.Email, login.Password);
 
-        var expiresAt = DateTime.Now.AddMinutes(2);
         var ipAddress = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
-        var token = GetToken(PrivateEncryptKey, PublicEncryptKey, user.Id, user.Name, expiresAt);
+        var token = CreateToken(user.Id, user.Name);
 
-        _loggerServices.Insert(new AccessLoggerInsertView(user.Id, token, ipAddress, expiresAt));
-        return new TokenView("authorized access", token, expiresAt);
-    }
-
-    public void Logout()
-    {
-        _loggerServices.SwitchValidStateByToken(GetRequestToken());
+        _loggerServices.Insert(new AccessLoggerInsertView(user.Id, token.Token, ipAddress, token.ExpiresAt));
+        return token;
     }
 
     private static void ValidateLoginParams(LoginView login)
@@ -53,81 +50,47 @@ public class AccessServices : IAccessServices
             throw new InvalidDataException("Password is required");
     }
 
-    private string GetRequestToken()
+    private TokenView CreateToken(Guid userId, string userName)
     {
-        string token = _contextAccessor.HttpContext.Request.Headers["Authorization"];
-        return token?.Substring(7);
+        var expirationConfig = _config["TokenConfiguration:ExpireHours"];
+        var expiration = DateTime.UtcNow.AddHours(double.Parse(expirationConfig));
+
+        var claims = new List<Claim>()
+        {
+            new Claim("userId", userId.ToString()),
+            new Claim("userName", userName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("expiresAt", expiration.ToString()),
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+        var credenciais = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            issuer: _config["TokenConfiguration:Issuer"],
+            audience: _config["TokenConfiguration:Audience"],
+            claims: claims,
+            expires: expiration,
+            signingCredentials: credenciais);
+
+        return new TokenView()
+        {
+            Message = "authorized access",
+            ExpiresAt = expiration,
+            Token = new JwtSecurityTokenHandler().WriteToken(token),
+        };
     }
-
-    public static string GetToken(string privateKey, string publicKey, Guid  userId,string userName, DateTime expiresAt)
+    public TokenDecryptedData GetTokenData()
     {
-        string text = Guid.NewGuid().ToString() + userId + expiresAt.ToString() + userName;
+        var httpContext = _httpContextAccessor.HttpContext;
+        ClaimsPrincipal user = httpContext.User;
 
-        try
-        {
-            string textToEncrypt = text;
-            string ToReturn = "";
-            string publickey = publicKey;
-            string secretkey = privateKey;
-            byte[] secretkeyByte = { };
-            secretkeyByte = Encoding.UTF8.GetBytes(secretkey);
-            byte[] publickeybyte = { };
-            publickeybyte = Encoding.UTF8.GetBytes(publickey);
-            MemoryStream ms = null;
-            CryptoStream cs = null;
+        if (user == null)
+            return null;
 
-            byte[] inputbyteArray = Encoding.UTF8.GetBytes(textToEncrypt);
-            using (var des = new DESCryptoServiceProvider())
-            {
-                ms = new MemoryStream();
-                cs = new CryptoStream(ms, des.CreateEncryptor(publickeybyte, secretkeyByte), CryptoStreamMode.Write);
-                cs.Write(inputbyteArray, 0, inputbyteArray.Length);
-                cs.FlushFinalBlock();
-                ToReturn = Convert.ToBase64String(ms.ToArray());
-            }
-            return ToReturn;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message, ex.InnerException);
-        }
-    }
-    public static TokenDecryptedData GetTokenData(string privateKey, string publicKey, string token)
-    {
-        string decrypted;
-        try
-        {
-            string textToDecrypt = token;
-            string publickey = publicKey;
-            string secretkey = privateKey;
-            byte[] privatekeyByte = { };
-            privatekeyByte = Encoding.UTF8.GetBytes(secretkey);
-            byte[] publickeybyte = { };
-            publickeybyte = Encoding.UTF8.GetBytes(publickey);
-            MemoryStream ms = null;
-            CryptoStream cs = null;
-            byte[] inputbyteArray = new byte[textToDecrypt.Replace(" ", "+").Length];
-            inputbyteArray = Convert.FromBase64String(textToDecrypt.Replace(" ", "+"));
-            using (var des = new DESCryptoServiceProvider())
-            {
-                ms = new MemoryStream();
-                cs = new CryptoStream(ms, des.CreateDecryptor(publickeybyte, privatekeyByte), CryptoStreamMode.Write);
-                cs.Write(inputbyteArray, 0, inputbyteArray.Length);
-                cs.FlushFinalBlock();
-                Encoding encoding = Encoding.UTF8;
-                decrypted = encoding.GetString(ms.ToArray());
-            }
-        }
-        catch (Exception ae)
-        {
-            throw new Exception(ae.Message, ae.InnerException);
-        }
-
-        var guidLenght = Guid.NewGuid().ToString().Length;
-        var dateTimeLenght = DateTime.Now.ToString().Length;
-        var userId = Guid.Parse(new string(decrypted.Skip(guidLenght).Take(guidLenght).ToArray()));
-        var expiresAt = DateTime.Parse(decrypted.Skip(guidLenght * 2).Take(dateTimeLenght).ToArray());
-        var userName = new string(decrypted.Skip((guidLenght * 2) + dateTimeLenght).ToArray());
+        var userId = Guid.Parse(user.FindFirst("userId")?.Value);
+        var userName = user.FindFirst("userName")?.Value;
+        var expiresAt = DateTime.Parse(user.FindFirst("expiresAt")?.Value);
 
         return new TokenDecryptedData(userId, userName, expiresAt);
     }
