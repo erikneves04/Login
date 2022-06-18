@@ -4,6 +4,7 @@
   Olá, pessoas!
 
   Esse reporitório foi criado com o objetivo de eu ter contato com diferentes formas de realizar o controle de acesso aos endpoints de uma API ASP.NET. 
+  É válido destacar que foquei em desenvolver o modelo de acessos e não busquei atender a outras funcionalidades como o tratamento de erros(usando um Middleware) para evitar a repetição de try/catch e a adição de paginação dos dados.
 </div> 
 
 ## Metas:
