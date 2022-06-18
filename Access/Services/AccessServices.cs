@@ -11,7 +11,6 @@ namespace Access.Services;
 public class AccessServices : IAccessServices
 {
     private readonly IAccessLoggerServices _loggerServices;
-    private readonly IHttpContextAccessor _contextAccessor;
     private readonly IConfiguration _config;
     private readonly IUserServices _userServices;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -19,10 +18,9 @@ public class AccessServices : IAccessServices
     // Don't change the keys
     public static readonly Dictionary<string, string> MainPermissions = new() { { "Admin", "admin" }, { "Common", "common" } };
 
-    public AccessServices(IAccessLoggerServices loggerServices, IHttpContextAccessor contextAccessor, IUserServices userServices, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+    public AccessServices(IAccessLoggerServices loggerServices, IUserServices userServices, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
     {
         _loggerServices = loggerServices;
-        _contextAccessor = contextAccessor;
         _userServices = userServices;
         _config = configuration;
         _httpContextAccessor = httpContextAccessor;
@@ -34,7 +32,7 @@ public class AccessServices : IAccessServices
 
         var user = _userServices.Access(login.Email, login.Password);
 
-        var ipAddress = _contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+        var ipAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
         var token = CreateToken(user.Id, user.Name);
 
         _loggerServices.Insert(new AccessLoggerInsertView(user.Id, token.Token, ipAddress, token.ExpiresAt));
@@ -80,7 +78,8 @@ public class AccessServices : IAccessServices
             Token = new JwtSecurityTokenHandler().WriteToken(token),
         };
     }
-    public TokenDecryptedData GetTokenData()
+
+    public TokenDecryptedData GetSessionData()
     {
         var httpContext = _httpContextAccessor.HttpContext;
         ClaimsPrincipal user = httpContext.User;
