@@ -25,7 +25,7 @@ public class User : Base
     public string Email { get; set; }
     public string Password { get; set; }
 
-    public static readonly int MaxAccessAttempts = 4;
+    public static readonly byte MaxAccessAttempts = 4;
     public int AccessAttemptsCount { get; set; } = 0;
     public bool AccessIsBlocked { get; private set; } = false;
     public DateTime BlockExpiresAt { get; private set; } = DateTime.MinValue;
