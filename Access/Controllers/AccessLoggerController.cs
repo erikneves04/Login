@@ -7,7 +7,7 @@ namespace Access.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize("Admin")]
+[Authorize]
 public class AccessLoggerController : ControllerBase
 {
     private readonly IAccessLoggerServices _services;
@@ -32,7 +32,6 @@ public class AccessLoggerController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize("Common")]
     public ActionResult<IEnumerable<AccessLoggerView>> Get(Guid id)
     {
         try

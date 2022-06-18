@@ -7,7 +7,7 @@ namespace Access.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize("Admin")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserServices _services;
@@ -34,7 +34,6 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize("Common")]
     public ActionResult<UserView> Get(Guid id)
     {
         try
